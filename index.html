@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#fbf5ee">
+<meta name="theme-color" content="#1f1712">
 <meta name="description" content="炭火江湖烧烤在线点餐：选菜、填桌号、下单，商家实时接单。">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23c94f1d'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='%23ffffff' font-family='sans-serif' font-weight='700'%3E%E7%82%AD%3C/text%3E%3C/svg%3E">
 <title>炭火江湖烧烤 · 点餐</title>
@@ -13,10 +13,7 @@
 <header class="topbar">
   <div class="brand">
     <span class="brand-mark" aria-hidden="true">炭</span>
-    <div>
-      <h1>炭火江湖烧烤</h1>
-      <p class="brand-sub">炭火直烧，好味人间</p>
-    </div>
+    <span class="brand-name">炭火江湖烧烤</span>
   </div>
   <nav class="tabs" role="tablist" aria-label="视图切换">
     <button type="button" class="tab is-active" data-act="view" data-view="customer" role="tab" aria-selected="true">顾客点餐</button>
@@ -26,25 +23,16 @@
 
 <main>
   <section id="customerView" class="view" aria-label="顾客点餐">
-    <div class="card cart-panel">
-      <div class="cart-head">
-        <h2>购物车</h2>
-        <span id="cartSummary" class="muted">共 0 份 · 0 元</span>
-      </div>
-      <ul id="cartItems" class="cart-items"></ul>
-      <p id="cartEmpty" class="empty">购物车还是空的，到下面挑两道喜欢的吧。</p>
-      <div class="checkout">
-        <label class="field">
-          <span>桌号</span>
-          <input id="tableInput" type="text" inputmode="numeric" maxlength="12" placeholder="例如：7 号桌" autocomplete="off">
-        </label>
-        <button type="button" class="btn btn-primary" data-act="submit">提交订单</button>
-      </div>
+    <div class="hero">
+      <h1 class="hero-title">炭火江湖烧烤</h1>
+      <p class="tagline" id="tagline" aria-label="炭火直烧，好味人间。今晚这顿，趁热上桌。">炭火直烧，好味人间。今晚这顿，趁热上桌。</p>
+      <p class="hero-meta">现点现烤 · 下单直达后厨 · 选好菜，填桌号就能下单</p>
     </div>
 
-    <nav class="cat-nav" id="catNav" aria-label="菜品分类"></nav>
-
-    <div id="menuGrid" class="menu-grid"></div>
+    <div class="shop-layout">
+      <nav class="cat-nav" id="catNav" aria-label="菜品分类"></nav>
+      <div id="menuGrid" class="menu-grid"></div>
+    </div>
   </section>
 
   <section id="merchantView" class="view" aria-label="商家订单" hidden>
@@ -68,11 +56,29 @@
 
 <footer class="foot">纯静态演示 · 订单数据保存在本机 localStorage · 炭火江湖烧烤</footer>
 
-<div class="checkout-bar" id="checkoutBar" aria-label="结算条">
-  <div class="bar-info">
-    <span class="bar-total" id="barTotal">0 元</span>
-    <span class="bar-count" id="barCount">共 0 份</span>
+<div class="sheet-backdrop" id="sheetBackdrop" data-act="close-cart" hidden></div>
+<section class="cart-sheet" id="cartSheet" aria-label="购物车" hidden>
+  <div class="sheet-head">
+    <h2>购物车</h2>
+    <span id="cartSummary" class="muted">共 0 份 · 0 元</span>
+    <button type="button" class="sheet-close" data-act="close-cart" aria-label="关闭购物车">✕</button>
   </div>
+  <ul id="cartItems" class="cart-items"></ul>
+  <p id="cartEmpty" class="empty">购物车还是空的，关掉这页挑两道喜欢的吧。</p>
+  <div class="checkout">
+    <label class="field">
+      <span>桌号</span>
+      <input id="tableInput" type="text" inputmode="numeric" maxlength="12" placeholder="例如：7 号桌" autocomplete="off">
+    </label>
+    <button type="button" class="btn btn-primary" data-act="submit">提交订单</button>
+  </div>
+</section>
+
+<div class="checkout-bar" id="checkoutBar" aria-label="结算条">
+  <button type="button" class="bar-info" data-act="open-cart" aria-label="查看购物车">
+    <span class="bar-total" id="barTotal">0 元</span>
+    <span class="bar-count" id="barCount">共 0 份 · 点这里看明细</span>
+  </button>
   <button type="button" class="btn btn-primary" data-act="submit">提交订单</button>
 </div>
 

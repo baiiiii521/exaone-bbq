@@ -5,25 +5,25 @@
   /* ---------------- 数据 ---------------- */
   const MENU = [
     { category: '烤串', items: [
-      { name: '香辣牛肉串', price: 18, spicy: 3 },
-      { name: '黑椒牛肉串', price: 17, spicy: 1 },
-      { name: '扇贝肉丸串', price: 16, spicy: 0 },
-      { name: '金丝玉米串', price: 10, spicy: 0 }
+      { name: '香辣牛肉串', price: 18, spicy: 3, note: '孜然辣椒面，炭火现烤' },
+      { name: '黑椒牛肉串', price: 17, spicy: 1, note: '现磨黑椒，肉香浓' },
+      { name: '扇贝肉丸串', price: 16, spicy: 0, note: '扇贝肉打成丸，弹牙' },
+      { name: '金丝玉米串', price: 10, spicy: 0, note: '整根玉米切段刷蜜' }
     ]},
     { category: '烤海鲜', items: [
-      { name: '蒜蓉虾球', price: 14, spicy: 0 },
-      { name: '炭火大虾', price: 26, spicy: 0 },
-      { name: '香辣鱿鱼串', price: 15, spicy: 3 }
+      { name: '蒜蓉虾球', price: 14, spicy: 0, note: '蒜蓉粉丝打底' },
+      { name: '炭火大虾', price: 26, spicy: 0, note: '开背去线，壳脆肉甜' },
+      { name: '香辣鱿鱼串', price: 15, spicy: 3, note: '须子焦香，辣得过瘾' }
     ]},
     { category: '主食小吃', items: [
-      { name: '藤椒咸黄油土豆', price: 11, spicy: 1 },
-      { name: '炭烤葱姜饼', price: 9, spicy: 0 },
-      { name: '金丝玉米杯', price: 8, spicy: 0 }
+      { name: '藤椒咸黄油土豆', price: 11, spicy: 1, note: '外皮焦脆，藤椒提味' },
+      { name: '炭烤葱姜饼', price: 9, spicy: 0, note: '现烙葱油饼，烤到起泡' },
+      { name: '金丝玉米杯', price: 8, spicy: 0, note: '芝士玉米粒，趁热拉丝' }
     ]},
     { category: '饮品', items: [
-      { name: '冰镇酸梅汤', price: 12, spicy: 0 },
-      { name: '陈皮柠檬茶', price: 15, spicy: 0 },
-      { name: '爽甜玉米汁', price: 10, spicy: 0 }
+      { name: '冰镇酸梅汤', price: 12, spicy: 0, note: '老北京配方，解辣解腻' },
+      { name: '陈皮柠檬茶', price: 15, spicy: 0, note: '手打柠檬，陈皮回甘' },
+      { name: '爽甜玉米汁', price: 10, spicy: 0, note: '现榨玉米，温热或冰镇' }
     ]}
   ];
 
@@ -130,15 +130,19 @@
       const section = make('section', 'category');
       section.id = 'cat-' + ci;
       section.appendChild(make('h3', null, cat.category));
-      const grid = make('div', 'category-grid');
+      const list = make('div', 'dish-list');
       cat.items.forEach(function (item, ii) {
         const id = MENU.indexOf(cat) + '-' + ii;
-        const card = make('article', 'item-card');
-        const top = make('div', 'item-top');
-        top.appendChild(make('span', 'item-name', item.name));
-        top.appendChild(make('span', 'spice spice-' + spiceLevel(item.spicy), SPICE_LABEL[spiceLevel(item.spicy)]));
-        card.appendChild(top);
-        card.appendChild(make('span', 'item-price', formatYuan(item.price)));
+        const row = make('article', 'item-row');
+        const main = make('div', 'dish-main');
+        const line = make('div', 'dish-line');
+        line.appendChild(make('span', 'item-name', item.name));
+        line.appendChild(make('span', 'spice spice-' + spiceLevel(item.spicy), SPICE_LABEL[spiceLevel(item.spicy)]));
+        main.appendChild(line);
+        if (item.note) main.appendChild(make('span', 'dish-note', item.note));
+        row.appendChild(main);
+        const side = make('div', 'dish-side');
+        side.appendChild(make('span', 'item-price', formatYuan(item.price)));
         const stepper = make('div', 'stepper');
         const dec = make('button', null, '−');
         dec.type = 'button';
@@ -154,11 +158,12 @@
         stepper.appendChild(dec);
         stepper.appendChild(qty);
         stepper.appendChild(inc);
-        card.appendChild(stepper);
-        grid.appendChild(card);
-        itemRefs.set(id, { card: card, qtyEl: qty, decBtn: dec });
+        side.appendChild(stepper);
+        row.appendChild(side);
+        list.appendChild(row);
+        itemRefs.set(id, { card: row, qtyEl: qty, decBtn: dec });
       });
-      section.appendChild(grid);
+      section.appendChild(list);
       els.menuGrid.appendChild(section);
     });
     buildCatNav();
@@ -184,9 +189,56 @@
   function updateBar(totalQty, totalPrice) {
     if (!els.checkoutBar) return;
     els.barTotal.textContent = formatYuan(totalPrice);
-    els.barCount.textContent = '共 ' + totalQty + ' 份';
+    els.barCount.textContent = '共 ' + totalQty + ' 份 · 点这里看明细';
     const show = totalQty > 0 && currentView === 'customer';
     els.checkoutBar.classList.toggle('show', show);
+  }
+
+  /* 购物车抽屉：从底部滑出，带遮罩与滚动锁定 */
+  function openCart() {
+    if (!els.cartSheet) return;
+    els.cartSheet.hidden = false;
+    els.sheetBackdrop.hidden = false;
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        els.cartSheet.classList.add('show');
+        els.sheetBackdrop.classList.add('show');
+      });
+    });
+    document.body.style.overflow = 'hidden';
+  }
+  function closeCart() {
+    if (!els.cartSheet || els.cartSheet.hidden) return;
+    els.cartSheet.classList.remove('show');
+    els.sheetBackdrop.classList.remove('show');
+    document.body.style.overflow = '';
+    setTimeout(function () {
+      els.cartSheet.hidden = true;
+      els.sheetBackdrop.hidden = true;
+    }, 480);
+  }
+
+  /* 标语逐词点亮（B11）：按分句切分，逐个进入视口时由暗转亮 */
+  function initTagline() {
+    const el = document.getElementById('tagline');
+    if (!el) return;
+    const parts = el.textContent.match(/[^，。]+[，。]?/g) || [el.textContent];
+    clear(el);
+    const spans = parts.map(function (p) {
+      const s = make('span', 'w', p);
+      el.appendChild(s);
+      return s;
+    });
+    if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      spans.forEach(function (s) { s.classList.add('on'); });
+      return;
+    }
+    const io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.6 });
+    spans.forEach(function (s) { io.observe(s); });
   }
 
   /* 分类区滚动显现 + 导航联动高亮（IntersectionObserver，符合动效规范） */
@@ -303,11 +355,10 @@
     const table = els.table.value.trim();
     if (!table) {
       toast('请填写桌号后再提交订单', 'warn');
+      openCart();
       els.table.classList.add('field-error');
-      const panel = els.table.closest('.card');
-      if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      els.table.focus({ preventScroll: true });
-      setTimeout(function () { els.table.classList.remove('field-error'); }, 2000);
+      setTimeout(function () { els.table.focus({ preventScroll: true }); }, 380);
+      setTimeout(function () { els.table.classList.remove('field-error'); }, 2400);
       return;
     }
     const items = [];
@@ -331,6 +382,7 @@
     syncAllItems();
     renderCart();
     toast('下单成功，订单 ' + order.no + ' · 桌号 ' + table);
+    closeCart();
   }
 
   /* ---------------- 商家视图 ---------------- */
@@ -402,6 +454,7 @@
   /* ---------------- 视图切换 ---------------- */
   function setView(name) {
     currentView = name;
+    closeCart();
     const merchant = name === 'merchant';
     if (els.customerView) els.customerView.hidden = merchant;
     if (els.merchantView) els.merchantView.hidden = !merchant;
@@ -434,6 +487,8 @@
         chip.classList.toggle('is-active', chip === el);
       });
     }
+    else if (act === 'open-cart') openCart();
+    else if (act === 'close-cart') closeCart();
   }
 
   /* ---------------- 启动 ---------------- */
@@ -455,7 +510,9 @@
       catNav: document.getElementById('catNav'),
       checkoutBar: document.getElementById('checkoutBar'),
       barTotal: document.getElementById('barTotal'),
-      barCount: document.getElementById('barCount')
+      barCount: document.getElementById('barCount'),
+      cartSheet: document.getElementById('cartSheet'),
+      sheetBackdrop: document.getElementById('sheetBackdrop')
     };
     if (!els.menuGrid || !els.cartItems || !els.orderList || !els.table) {
       console.warn('必要的 DOM 节点缺失，脚本停止运行');
@@ -467,7 +524,9 @@
     setView('customer');
     const topbar = document.querySelector('.topbar');
     if (topbar) document.documentElement.style.setProperty('--catnav-top', topbar.offsetHeight + 'px');
+    initTagline();
     initObservers();
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeCart(); });
     document.addEventListener('click', onDocClick);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
