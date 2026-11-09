@@ -126,8 +126,9 @@
   /* ---------------- 菜单渲染 ---------------- */
   function renderMenu() {
     clear(els.menuGrid);
-    MENU.forEach(function (cat) {
+    MENU.forEach(function (cat, ci) {
       const section = make('section', 'category');
+      section.id = 'cat-' + ci;
       section.appendChild(make('h3', null, cat.category));
       const grid = make('div', 'category-grid');
       cat.items.forEach(function (item, ii) {
@@ -160,7 +161,56 @@
       section.appendChild(grid);
       els.menuGrid.appendChild(section);
     });
+    buildCatNav();
     itemRefs.forEach(function (_ref, id) { syncItem(id); });
+  }
+
+  /* 分类快捷导航：由菜单数据生成，与滚动联动高亮 */
+  function buildCatNav() {
+    if (!els.catNav) return;
+    clear(els.catNav);
+    MENU.forEach(function (cat, ci) {
+      const chip = make('button', 'cat-chip', cat.category);
+      chip.type = 'button';
+      chip.dataset.act = 'cat';
+      chip.dataset.target = 'cat-' + ci;
+      if (ci === 0) chip.classList.add('is-active');
+      els.catNav.appendChild(chip);
+    });
+  }
+
+  /* 底部结算条：与购物车汇总同步显隐 */
+  let currentView = 'customer';
+  function updateBar(totalQty, totalPrice) {
+    if (!els.checkoutBar) return;
+    els.barTotal.textContent = formatYuan(totalPrice);
+    els.barCount.textContent = '共 ' + totalQty + ' 份';
+    const show = totalQty > 0 && currentView === 'customer';
+    els.checkoutBar.classList.toggle('show', show);
+  }
+
+  /* 分类区滚动显现 + 导航联动高亮（IntersectionObserver，符合动效规范） */
+  function initObservers() {
+    const sections = document.querySelectorAll('.category');
+    if (!('IntersectionObserver' in window)) {
+      sections.forEach(function (s) { s.classList.add('revealed'); });
+      return;
+    }
+    const reveal = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('revealed'); reveal.unobserve(e.target); }
+      });
+    }, { threshold: 0.08 });
+    sections.forEach(function (s) { reveal.observe(s); });
+    const spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting || !els.catNav) return;
+        els.catNav.querySelectorAll('.cat-chip').forEach(function (chip) {
+          chip.classList.toggle('is-active', chip.dataset.target === e.target.id);
+        });
+      });
+    }, { rootMargin: '-30% 0px -60% 0px' });
+    sections.forEach(function (s) { spy.observe(s); });
   }
   function syncItem(id) {
     const ref = itemRefs.get(id);
@@ -185,6 +235,12 @@
       cart.set(id, Math.min(MAX_QTY, next));
     }
     syncItem(id);
+    const ref = itemRefs.get(id);
+    if (ref && ref.qtyEl) {
+      ref.qtyEl.classList.remove('pop');
+      void ref.qtyEl.offsetWidth;
+      ref.qtyEl.classList.add('pop');
+    }
     renderCart();
   }
   function renderCart() {
@@ -227,6 +283,7 @@
     });
     els.cartSummary.textContent = '共 ' + totalQty + ' 份 · ' + formatYuan(totalPrice);
     els.cartEmpty.hidden = cart.size > 0;
+    updateBar(totalQty, totalPrice);
   }
 
   /* ---------------- 提交订单 ---------------- */
@@ -246,7 +303,11 @@
     const table = els.table.value.trim();
     if (!table) {
       toast('请填写桌号后再提交订单', 'warn');
-      els.table.focus();
+      els.table.classList.add('field-error');
+      const panel = els.table.closest('.card');
+      if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      els.table.focus({ preventScroll: true });
+      setTimeout(function () { els.table.classList.remove('field-error'); }, 2000);
       return;
     }
     const items = [];
@@ -269,7 +330,7 @@
     els.table.value = '';
     syncAllItems();
     renderCart();
-    toast('下单成功！订单 ' + order.no + ' · 桌号 ' + table + '，坐等炭火出炉');
+    toast('下单成功，订单 ' + order.no + ' · 桌号 ' + table);
   }
 
   /* ---------------- 商家视图 ---------------- */
@@ -340,6 +401,7 @@
 
   /* ---------------- 视图切换 ---------------- */
   function setView(name) {
+    currentView = name;
     const merchant = name === 'merchant';
     if (els.customerView) els.customerView.hidden = merchant;
     if (els.merchantView) els.merchantView.hidden = !merchant;
@@ -349,6 +411,7 @@
       t.setAttribute('aria-selected', on ? 'true' : 'false');
     });
     if (merchant) renderOrders();
+    renderCart();
   }
 
   /* ---------------- 事件 ---------------- */
@@ -364,6 +427,13 @@
     else if (act === 'submit') submitOrder();
     else if (act === 'status') cycleStatus(el.dataset.id);
     else if (act === 'view') setView(el.dataset.view);
+    else if (act === 'cat') {
+      const target = document.getElementById(el.dataset.target);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (els.catNav) els.catNav.querySelectorAll('.cat-chip').forEach(function (chip) {
+        chip.classList.toggle('is-active', chip === el);
+      });
+    }
   }
 
   /* ---------------- 启动 ---------------- */
@@ -381,7 +451,11 @@
       toasts: document.getElementById('toasts'),
       tabs: document.querySelector('.tabs'),
       customerView: document.getElementById('customerView'),
-      merchantView: document.getElementById('merchantView')
+      merchantView: document.getElementById('merchantView'),
+      catNav: document.getElementById('catNav'),
+      checkoutBar: document.getElementById('checkoutBar'),
+      barTotal: document.getElementById('barTotal'),
+      barCount: document.getElementById('barCount')
     };
     if (!els.menuGrid || !els.cartItems || !els.orderList || !els.table) {
       console.warn('必要的 DOM 节点缺失，脚本停止运行');
@@ -391,6 +465,9 @@
     renderMenu();
     renderCart();
     setView('customer');
+    const topbar = document.querySelector('.topbar');
+    if (topbar) document.documentElement.style.setProperty('--catnav-top', topbar.offsetHeight + 'px');
+    initObservers();
     document.addEventListener('click', onDocClick);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
