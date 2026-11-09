@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fbf5ee">
+<title>炭火江湖烧烤 · 点餐</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark" aria-hidden="true">炭</span>
+    <div>
+      <h1>炭火江湖烧烤</h1>
+      <p class="brand-sub">炭火直烧，好味人间</p>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="视图切换">
+    <button type="button" class="tab is-active" data-act="view" data-view="customer" role="tab" aria-selected="true">顾客点餐</button>
+    <button type="button" class="tab" data-act="view" data-view="merchant" role="tab" aria-selected="false">商家订单</button>
+  </nav>
+</header>
+
+<main>
+  <section id="customerView" class="view" aria-label="顾客点餐">
+    <div class="card cart-panel">
+      <div class="cart-head">
+        <h2>购物车</h2>
+        <span id="cartSummary" class="muted">共 0 份 · 0 元</span>
+      </div>
+      <ul id="cartItems" class="cart-items"></ul>
+      <p id="cartEmpty" class="empty">购物车还是空的，到下面挑两道喜欢的吧。</p>
+      <div class="checkout">
+        <label class="field">
+          <span>桌号</span>
+          <input id="tableInput" type="text" inputmode="numeric" maxlength="12" placeholder="例如：7 号桌" autocomplete="off">
+        </label>
+        <button type="button" class="btn btn-primary" data-act="submit">提交订单</button>
+      </div>
+    </div>
+
+    <div id="menuGrid" class="menu-grid"></div>
+  </section>
+
+  <section id="merchantView" class="view" aria-label="商家订单" hidden>
+    <div class="stats">
+      <div class="card stat">
+        <span class="stat-label">今日订单</span>
+        <span class="stat-num"><strong id="statCount">0</strong><span class="stat-unit">单</span></span>
+      </div>
+      <div class="card stat">
+        <span class="stat-label">今日营业额</span>
+        <span class="stat-num"><strong id="statRevenue">0</strong><span class="stat-unit">元</span></span>
+      </div>
+    </div>
+    <div class="card orders-head">
+      <h2>全部订单</h2>
+      <span id="ordersHint" class="muted">暂无</span>
+    </div>
+    <div id="orderList" class="order-list"></div>
+  </section>
+</main>
+
+<footer class="foot">纯静态演示 · 订单数据保存在本机 localStorage · 炭火江湖烧烤</footer>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<script src="app.js" defer></script>
+</body>
+</html>
