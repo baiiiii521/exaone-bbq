@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1f1712">
+<meta name="theme-color" content="#fbfbfd">
 <meta name="description" content="炭火江湖烧烤在线点餐：选菜、填桌号、下单，商家实时接单。">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23c94f1d'/%3E%3Ctext x='32' y='44' font-size='34' text-anchor='middle' fill='%23ffffff' font-family='sans-serif' font-weight='700'%3E%E7%82%AD%3C/text%3E%3C/svg%3E">
 <title>炭火江湖烧烤 · 点餐</title>
@@ -24,10 +24,46 @@
 <main>
   <section id="customerView" class="view" aria-label="顾客点餐">
     <div class="hero">
-      <h1 class="hero-title">炭火江湖烧烤</h1>
-      <p class="tagline" id="tagline" aria-label="炭火直烧，好味人间。今晚这顿，趁热上桌。">炭火直烧，好味人间。今晚这顿，趁热上桌。</p>
-      <p class="hero-meta">现点现烤 · 下单直达后厨 · 选好菜，填桌号就能下单</p>
+      <p class="hero-eyebrow">炭火江湖烧烤 · 现点现烤</p>
+      <h1 class="hero-title">炭火直烧，<br>好味人间。</h1>
+      <p class="tagline" id="tagline" aria-label="今晚这顿，趁热上桌。选好菜，填桌号就能下单。">今晚这顿，趁热上桌。选好菜，填桌号就能下单。</p>
+      <div class="hero-cta">
+        <button type="button" class="btn btn-primary btn-hero" data-act="cat" data-target="cat-0">查看菜单</button>
+        <span class="hero-meta">下单直达后厨 · 无需排队点单</span>
+      </div>
+      <div class="hero-fan" aria-hidden="true">
+        <div class="fan-card fan-left">
+          <span class="fan-name">香辣牛肉串</span>
+          <span class="fan-note">孜然辣椒面，炭火现烤</span>
+          <span class="fan-price">¥18</span>
+        </div>
+        <div class="fan-card fan-center">
+          <span class="fan-name">炭火大虾</span>
+          <span class="fan-note">开背去线，壳脆肉甜</span>
+          <span class="fan-price">¥26</span>
+        </div>
+        <div class="fan-card fan-right">
+          <span class="fan-name">冰镇酸梅汤</span>
+          <span class="fan-note">解辣解腻，冰镇上桌</span>
+          <span class="fan-price">¥12</span>
+        </div>
+      </div>
     </div>
+
+    <section class="spec-band" aria-label="本店参数">
+      <div class="spec">
+        <span class="spec-num grad-a">13</span>
+        <span class="spec-cap">道菜品，全部现点现烤</span>
+      </div>
+      <div class="spec">
+        <span class="spec-num grad-b">4</span>
+        <span class="spec-cap">大分类，烤串海鲜主食饮品齐全</span>
+      </div>
+      <div class="spec">
+        <span class="spec-num grad-c">3</span>
+        <span class="spec-cap">步下单，选菜、填桌号、提交</span>
+      </div>
+    </section>
 
     <div class="shop-layout">
       <nav class="cat-nav" id="catNav" aria-label="菜品分类"></nav>
